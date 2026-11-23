@@ -8,7 +8,16 @@ namespace AI_Strategy {
 
         public MyStrategy(Player player) : base(player) {}
 
-        public override void DeployTowers() {}
+        public override void DeployTowers() {
+            turn++;
+
+            if(turn == 1) {
+                //Two towers cover the entire width of the lane [(2, 3), (4, 3)] for 5 gold
+                player.TryBuyTower<MyTower>(2, 3);
+                player.TryBuyTower<MyTower>(4, 3);
+                return;
+            }
+        }
 
         public override void DeploySoldiers() {}
 
