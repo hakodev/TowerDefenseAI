@@ -11,6 +11,11 @@ namespace AI_Strategy {
 
         private StrategyState state = StrategyState.Opening;
 
+        private const int MinTowerCount = 2;
+        private const int TargetTowerCount = 5;
+        private const int BaselineSoldierCount = 6;
+        private const int SoldierCost = 2;
+
         public MyStrategy(Player player) : base(player) {}
 
         public override void DeployTowers() {
@@ -32,7 +37,27 @@ namespace AI_Strategy {
             }
         }
 
-        public override void DeploySoldiers() {}
+        public override void DeploySoldiers() {
+            int goldGoal = (BaselineSoldierCount + player.EnemyLane.TowerCount()) * SoldierCost;
+
+            if(state == StrategyState.Saving && player.Gold >= goldGoal) {
+                state = StrategyState.Attacking;
+            }
+
+            if(state == StrategyState.Attacking) {
+                while(player.Gold >= SoldierCost) {
+                    int bestX = FindBestSoldierX();
+                    if(bestX < 0) break;
+
+                    if(player.TryBuySoldier<MySoldier>(bestX) != Player.SoldierPlacementResult.Success) break;
+                }
+
+                //Switch back to Saving once we can't afford another soldier
+                if(player.Gold < SoldierCost) {
+                    state = StrategyState.Saving;
+                }
+            }
+        }
 
         public override List<Soldier> SortedSoldierArray(List<Soldier> unsortedList) {
             List<Soldier> sortedList = new(unsortedList);
@@ -47,17 +72,12 @@ namespace AI_Strategy {
         }
 
         private bool ShouldBuildTower(int nextTowerCost) {
-            //If we have enough gold to build a tower, and we have less than 5 towers, build a tower
-            //return player.Gold >= nextTowerCost && player.HomeLane.TowerCount() < 5;
-
             int towerCount = player.HomeLane.TowerCount();
             int enemyCount = player.HomeLane.SoldierCount();
 
-            if(towerCount < 2) return true; //Always keep at least 2 towers standing
-
+            if(towerCount < MinTowerCount) return true; //Always keep at least 2 towers standing
             if(enemyCount >= towerCount) return true; //Build more towers if we are under pressure
-
-            if(towerCount < 5 && player.Gold >= nextTowerCost * 2) return true; //Build more towers if we have less than 5 towers and plenty of gold
+            if(towerCount < TargetTowerCount && player.Gold >= nextTowerCost * 2) return true; //Build more towers if we have less than 5 towers and plenty of gold
 
             return false;
         }
@@ -85,6 +105,28 @@ namespace AI_Strategy {
 
             //Rules forbid placing a tower directly next to another tower horizontally/vertically
             return !player.CheckAdjacentCellsAny(player.HomeLane, x, y, neighborCell => neighborCell?.Unit is Tower);
+        }
+
+        private int FindBestSoldierX() {
+            //Find the column with the fewest enemy soldiers
+            int bestX = -1;
+            int fewestTowers = int.MaxValue;
+
+            for(int x = 0; x < PlayerLane.WIDTH; x++) {
+                if(player.EnemyLane.GetCellAt(x, 0)?.Unit != null) continue;
+
+                int towersInColumnCount = 0;
+                for(int y = 0; y < PlayerLane.HEIGHT; y++) {
+                    if(player.EnemyLane.GetCellAt(x, y)?.Unit is Tower) towersInColumnCount++;
+                }
+
+                if(towersInColumnCount < fewestTowers) {
+                    fewestTowers = towersInColumnCount;
+                    bestX = x;
+                }
+            }
+
+            return bestX;
         }
     }
 }
