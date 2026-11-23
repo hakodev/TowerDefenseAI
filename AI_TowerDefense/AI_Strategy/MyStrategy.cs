@@ -9,16 +9,11 @@ namespace AI_Strategy {
             Attacking
         }
 
-        private int turn = 0;
         private StrategyState state = StrategyState.Opening;
-
-        private const int MaxTurns = 1000;
 
         public MyStrategy(Player player) : base(player) {}
 
         public override void DeployTowers() {
-            turn++;
-
             if(state == StrategyState.Opening) {
                 //Two towers cover the entire width of the lane [(2, 3), (4, 3)] for 5 gold
                 player.TryBuyTower<MyTower>(2, 3);
@@ -27,21 +22,13 @@ namespace AI_Strategy {
                 return;
             }
 
-            //Because a game ends after 1000 turns and a lane is 20 rows tall,
-            //stop wasting gold on soldiers after turn 980 if no enemies are on our lane
-            if(turn > MaxTurns - 20 && player.HomeLane.SoldierCount() == 0) return;
+            int nextTowerCost = Tower.GetNextTowerCosts(player.HomeLane);
 
-            //Cut idea!: Build a tower if under attack with too few towers, or if we have plenty of spare gold
-            //bool underPressure = player.HomeLane.SoldierCount() > player.HomeLane.TowerCount();
-            //bool canFortify = player.HomeLane.TowerCount() < 5 && player.Gold >= Tower.GetNextTowerCosts(player.HomeLane);
-            //if(!underPressure && !canFortify) return;
+            if(player.Gold < nextTowerCost) return;
+            if(!ShouldBuildTower(nextTowerCost)) return;
 
-            //Build up to 2 towers per turn if a heavy rush hits us
-            for(int i = 0; i < 2; i++) {
-                int nextTowerCost = Tower.GetNextTowerCosts(player.HomeLane);
-                if(player.Gold < nextTowerCost) break;
-
-                if(!ShouldBuildTower(nextTowerCost)) break;
+            if(TryFindBestTowerSpot(out int bestX, out int bestY)) {
+                player.TryBuyTower<MyTower>(bestX, bestY);
             }
         }
 
@@ -72,20 +59,28 @@ namespace AI_Strategy {
         }
 
         private bool TryFindBestTowerSpot(out int bestX, out int bestY) {
-            bestX = -1;
-            bestY = -1;
-            int bestScore = int.MinValue;
-
-            for(int x = 0; x < PlayerLane.WIDTH; x++) {
-                for(int y = PlayerLane.HEIGHT_OF_SAFETY_ZONE; y < PlayerLane.HEIGHT; y++) {
-                    if(player.HomeLane.GetCellAt(x, y)?.Unit != null) continue;
-
-                    //Rules forbid placing a tower directly next to another tower horizontally/vertically
-                    if(player.CheckAdjacentCellsAny(player.HomeLane, x, y, cell => cell?.Unit is Tower)) continue;
+            //Scan row by row from front to back in a checkerboard across the inner columns
+            for(int y = PlayerLane.HEIGHT_OF_SAFETY_ZONE; y < PlayerLane.HEIGHT; y++) {
+                for(int x = 1; x < PlayerLane.WIDTH - 1; x++) {
+                    if((x + y) % 2 == 1 && CanPlaceTowerAt(x, y)) {
+                        bestX = x;
+                        bestY = y;
+                        return true;
+                    }
                 }
             }
 
+            bestX = -1;
+            bestY = -1;
             return false;
+        }
+
+        private bool CanPlaceTowerAt(int x, int y) {
+            Cell cell = player.HomeLane.GetCellAt(x, y);
+            if(cell == null || cell.Unit != null) return false;
+
+            //Rules forbid placing a tower directly next to another tower horizontally/vertically
+            return !player.CheckAdjacentCellsAny(player.HomeLane, x, y, neighborCell => neighborCell?.Unit is Tower);
         }
     }
 }
