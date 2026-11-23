@@ -35,11 +35,15 @@ namespace AI_Strategy {
         public override void DeploySoldiers() {}
 
         public override List<Soldier> SortedSoldierArray(List<Soldier> unsortedList) {
-            return unsortedList;
+            List<Soldier> sortedList = new(unsortedList);
+            sortedList.Sort((a, b) => b.PosY.CompareTo(a.PosY));
+            return sortedList;
         }
 
         public override List<Tower> SortedTowerArray(List<Tower> unsortedList) {
-            return unsortedList;
+            List<Tower> sortedList = new(unsortedList);
+            sortedList.Sort((a, b) => b.PosY.CompareTo(a.PosY));
+            return sortedList;
         }
 
         private bool ShouldBuildTower(int nextTowerCost) {
