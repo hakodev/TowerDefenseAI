@@ -38,6 +38,9 @@ namespace AI_Strategy {
         }
 
         public override void DeploySoldiers() {
+            //We don't want to spend gold on offense until our minimum defense is standing
+            if(player.HomeLane.TowerCount() < MinTowerCount) return;
+
             int goldGoal = (BaselineSoldierCount + player.EnemyLane.TowerCount()) * SoldierCost;
 
             if(state == StrategyState.Saving && player.Gold >= goldGoal) {
@@ -108,7 +111,7 @@ namespace AI_Strategy {
         }
 
         private int FindBestSoldierX() {
-            //Find the column with the fewest enemy soldiers
+            //Find the empty spawn column with the fewest enemy towers
             int bestX = -1;
             int fewestTowers = int.MaxValue;
 
