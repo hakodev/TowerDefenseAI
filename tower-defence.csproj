@@ -51,9 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AI_TowerDefense\AI_Strategy\AbstractStrategy.cs" />
-    <Compile Include="AI_TowerDefense\AI_Strategy\MySoldier.cs" />
-    <Compile Include="AI_TowerDefense\AI_Strategy\MyStrategy.cs" />
-    <Compile Include="AI_TowerDefense\AI_Strategy\MyTower.cs" />
+    <Compile Include="AI_TowerDefense\AI_Strategy\HakoSoldier.cs" />
+    <Compile Include="AI_TowerDefense\AI_Strategy\HakoStrategy.cs" />
+    <Compile Include="AI_TowerDefense\AI_Strategy\HakoTower.cs" />
     <Compile Include="AI_TowerDefense\AI_Strategy\RandomStrategy.cs" />
     <Compile Include="AI_TowerDefense\AI_Strategy\RandomStrategyLoggerDemo.cs" />
     <Compile Include="AI_TowerDefense\AI_Strategy\TowerPlacementTestStrategy.cs" />
