@@ -74,7 +74,7 @@ namespace AI_Strategy
                     if (player.EnemyLane.GetCellAt(x, y).Unit == null)
                     {
                         positioned = true;
-                        player.TryBuySoldier<MySoldier>(x, out var soldier);
+                        player.TryBuySoldier<HakoSoldier>(x, out var soldier);
                     }
                 }
             }

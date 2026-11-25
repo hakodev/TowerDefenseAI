@@ -2,7 +2,7 @@
 using GameFramework;
 
 namespace AI_Strategy {
-    public class MyTower : Tower {
+    public class HakoTower : Tower {
         protected override List<Unit> SortTargetsInRange(List<Unit> targets) {
             targets.Sort((a, b) => {
                 //Finish off any soldier that are close to dying

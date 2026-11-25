@@ -2,7 +2,7 @@
 using GameFramework;
 
 namespace AI_Strategy {
-    public class MyStrategy : AbstractStrategy {
+    public class HakoStrategy : AbstractStrategy {
         private enum StrategyState {
             Opening,
             Saving,
@@ -16,13 +16,13 @@ namespace AI_Strategy {
         private const int BaselineSoldierCount = 6;
         private const int SoldierCost = 2;
 
-        public MyStrategy(Player player) : base(player) {}
+        public HakoStrategy(Player player) : base(player) {}
 
         public override void DeployTowers() {
             if(state == StrategyState.Opening) {
                 //Two towers cover the entire width of the lane [(2, 3), (4, 3)] for 5 gold
-                player.TryBuyTower<MyTower>(2, 3);
-                player.TryBuyTower<MyTower>(4, 3);
+                player.TryBuyTower<HakoTower>(2, 3);
+                player.TryBuyTower<HakoTower>(4, 3);
                 state = StrategyState.Saving;
                 return;
             }
@@ -33,7 +33,7 @@ namespace AI_Strategy {
             if(!ShouldBuildTower(nextTowerCost)) return;
 
             if(TryFindBestTowerSpot(out int bestX, out int bestY)) {
-                player.TryBuyTower<MyTower>(bestX, bestY);
+                player.TryBuyTower<HakoTower>(bestX, bestY);
             }
         }
 
@@ -52,7 +52,7 @@ namespace AI_Strategy {
                     int bestX = FindBestSoldierX();
                     if(bestX < 0) break;
 
-                    if(player.TryBuySoldier<MySoldier>(bestX) != Player.SoldierPlacementResult.Success) break;
+                    if(player.TryBuySoldier<HakoSoldier>(bestX) != Player.SoldierPlacementResult.Success) break;
                 }
 
                 //Switch back to Saving once we can't afford another soldier

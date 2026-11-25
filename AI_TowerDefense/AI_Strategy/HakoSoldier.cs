@@ -2,7 +2,7 @@
 using GameFramework;
 
 namespace AI_Strategy {
-    public class MySoldier : Soldier
+    public class HakoSoldier : Soldier
     {
         private const int TowerRange = 2;
         private const int ForwardWeight = 10;
